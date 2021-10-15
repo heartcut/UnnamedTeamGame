@@ -1,0 +1,127 @@
+﻿@if (gamestate == 0) //first screen with numbers and boxes
+{
+    <h2 id="game-title">Remember the colors and the numbers.</h2>
+    <div>
+        <button class="memorizeelement" style=background-color:@colors[0]>@numbers[0]</button>
+        <button class="memorizeelement" style=background-color:@colors[1]>@numbers[1]</button>
+        <button class="memorizeelement" style=background-color:@colors[2]>@numbers[2]</button>
+    </div>
+}
+else if (gamestate == 1) //Short Screen saying to think carefully or something
+{
+    <div>Remember</div>
+}
+else if (gamestate == 2) //screen with question and answer choices
+{
+    if (Var3 == 0)//question what color was the box with the number 7?
+    {
+        <p>What color was the box with number @numbers[Var4]?</p>
+
+        <button @onclick="(() => CheckAnswer(1))">@colors[1]</button>
+        <button @onclick="(() => CheckAnswer(2))">@colors[2]</button>
+        <button @onclick="(() => CheckAnswer(0))">@colors[0]</button>
+    }
+    else //question what number was in the blue box?
+    {
+        <p>What number was in the @colors[Var4] box? </p>
+
+        <button @onclick="(() => CheckAnswer(1))">@numbers[1]</button>
+        <button @onclick="(() => CheckAnswer(2))">@numbers[2]</button>
+        <button @onclick="(() => CheckAnswer(0))">@numbers[0]</button>
+    }
+}
+else if (gamestate == 3) 
+{
+    <div>Correct!</div>
+}
+else
+{
+    <div>Wrong!</div>
+}
+
+@code {
+    //[colors,numbers,questoin1or2,answer]
+    [Parameter]
+    public int Var1 { get; set; }
+    [Parameter]
+    public int Var2 { get; set; }
+    [Parameter]
+    public int Var3 { get; set; }
+    [Parameter]
+    public int Var4 { get; set; }
+    [Parameter]
+    public int playernumber { get; set; }
+    [Parameter]
+    public int lobbynumber { get; set; }
+    [Parameter]
+    public HubConnection hubConnection { get; set; }
+
+    public string[] colors;
+    public int[] numbers;
+
+    public int gamestate = 0;
+
+    int memorizetimer = 0;
+    bool is_stopwatchrunning = true;
+    async Task MemorizeStopWatch()
+    {
+        while (is_stopwatchrunning)
+        {
+            if (memorizetimer > 3 && memorizetimer <= 4)
+            {
+                gamestate = 1;
+            }
+            if (memorizetimer > 4)
+            {
+                gamestate = 2;
+                is_stopwatchrunning = false;
+            }
+            await Task.Delay(1000);
+            memorizetimer = memorizetimer + 1;
+            StateHasChanged();
+        }
+    }
+    protected override async Task OnInitializedAsync()
+    {
+        switch (Var1)
+        {
+            case 1: colors = new string[] { "red", "blue", "green" }; break;
+            case 2: colors = new string[] { "yellow", "blue", "green" }; break;
+            case 3: colors = new string[] { "red", "yellow", "green" }; break;
+            case 4: colors = new string[] { "red", "yellow", "blue" }; break;
+            case 5: colors = new string[] { "green", "blue", "red" }; break;
+            case 6: colors = new string[] { "red", "green", "yellow" }; break;
+            case 7: colors = new string[] { "blue", "red", "yellow" }; break;
+            case 8: colors = new string[] { "blue", "green", "yellow" }; break;
+            case 9: colors = new string[] { "blue", "yellow", "green" }; break;
+        }
+        switch (Var2)
+        {
+            case 1: numbers = new int[] { 1, 2, 3 }; break;
+            case 2: numbers = new int[] { 2, 3, 4 }; break;
+            case 3: numbers = new int[] { 4, 5, 6 }; break;
+            case 4: numbers = new int[] { 6, 5, 4 }; break;
+            case 5: numbers = new int[] { 8, 7, 6 }; break;
+            case 6: numbers = new int[] { 9, 0, 3 }; break;
+            case 7: numbers = new int[] { 4, 6, 5 }; break;
+            case 8: numbers = new int[] { 3, 6, 7 }; break;
+            case 9: numbers = new int[] { 69, 420, 1 }; break;
+        }
+        MemorizeStopWatch();
+    }
+    public async Task CheckAnswer(int answer)
+    {
+        if (answer == Var4)
+        {
+            gamestate = 3;
+            await Task.Delay(1000);
+            await MinigameGeneration.PlayerFinishedGame(playernumber, true, lobbynumber, hubConnection);
+        }
+        else
+        {
+            gamestate = 4;
+            await Task.Delay(1000);
+            await MinigameGeneration.PlayerFinishedGame(playernumber, false, lobbynumber, hubConnection);
+        }
+    }
+}

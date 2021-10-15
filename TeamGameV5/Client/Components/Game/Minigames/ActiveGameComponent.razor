@@ -1,0 +1,60 @@
+﻿@if (ingame == 1)
+{
+    if (playergame == 0)
+    {
+        <SixNineGame lobbynumber="@lobbynumber" playernumber="@playernumber" answer1="var1" answer2="var2" hubConnection="hubConnection" />
+    }
+    else if (playergame == 1)
+    {
+        <MakeSquare lobbynumber="@lobbynumber" playernumber="@playernumber" Var1="var1" Var2="var2" Var3="var3" Var4="var4" hubConnection="hubConnection"></MakeSquare>
+    }
+    else if (playergame == 2)
+    {
+        <MemorizeColorNumber lobbynumber="@lobbynumber" playernumber="@playernumber" Var1="var1" Var2="var2" Var3="var3" Var4="var4" hubConnection="hubConnection"></MemorizeColorNumber>
+    }
+    else if (playergame == 3)
+    {
+        <MemorizeColorShape lobbynumber="@lobbynumber" playernumber="@playernumber" Var1="var1" Var2="var2" Var3="var3" Var4="var4" hubConnection="hubConnection"></MemorizeColorShape>
+    }
+    else if (playergame == 4)
+    {
+       <MatchColorWord playeriam="@playeriam" lobbynumber="@lobbynumber" playernumber="@playernumber" Var1="var1" Var2="var2" Var3="var3" Var4="var4" hubConnection="hubConnection"></MatchColorWord>
+    }
+    else
+    {
+        <PlaceholderGame lobbynumber="@lobbynumber" playernumber="@playernumber" answer1="var1" answer2="var2" hubConnection="hubConnection"></PlaceholderGame>
+    }
+}
+@if (ingame == 0)
+{
+    <div>Loading next game</div>
+}
+@if (ingame == -1)
+{
+    <div>oh no im dead</div>
+}
+
+@code {
+
+    [Parameter]
+    public HubConnection hubConnection { get; set; }
+    [Parameter]
+    public int lobbynumber { get; set; }
+    [Parameter]
+    public int playernumber { get; set; }
+    [Parameter]
+    public int ingame { get; set; }
+    [Parameter]
+    public int var1 { get; set; }
+    [Parameter]
+    public int var2 { get; set; }
+    [Parameter]
+    public int var3 { get; set; }
+    [Parameter]
+    public int var4 { get; set; }
+    [Parameter]
+    public int playergame { get; set; }
+    [Parameter]
+    public int playeriam { get; set; }
+
+}

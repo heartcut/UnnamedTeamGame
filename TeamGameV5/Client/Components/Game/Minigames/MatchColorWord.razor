@@ -1,0 +1,103 @@
+﻿
+<h4>Click the circle when the text names the color of the circle.</h4>
+@if (gamestate == 1)
+{
+    <div @onclick="CheckAnswer" style="@GetCircleColor()"></div>
+    <div style="color:@colors[Var3];">@colors[Var2]</div>
+}
+@if (gamestate == 2)
+{
+    <div>Correct!</div>
+}
+@if (gamestate == 3)
+{
+    <div>Wrong!</div>
+}
+@code {
+
+    /// <summary>
+    /// Var1 is the color of the circle
+    /// Var2 is what color the text SAYS
+    /// Var3 is the color of the text
+    /// </summary>
+    [Parameter]
+    public int Var1 { get; set; }
+    [Parameter]
+    public int Var2 { get; set; }
+    [Parameter]
+    public int Var3 { get; set; }
+    [Parameter]
+    public int Var4 { get; set; }
+    [Parameter]
+    public int playernumber { get; set; }
+    [Parameter]
+    public int lobbynumber { get; set; }
+    [Parameter]
+    public HubConnection hubConnection { get; set; }
+    [Parameter]
+    public int playeriam { get; set; }
+
+    public string[] colors = { "red", "green", "yellow", "blue" };
+
+    protected override async Task OnInitializedAsync()
+    {
+        GameTimer();
+    }
+
+    public int gamestate = 0;
+    int timer = 0;
+    bool is_stopwatchrunning = true;
+    async Task GameTimer()
+    {
+        Random rndm = new Random();
+        while (is_stopwatchrunning)
+        {
+            await Task.Delay(1000);
+            timer = timer + 1;
+            if (timer > 2 && gamestate != 1 && gamestate != 2 && gamestate != 3)
+            {
+                gamestate = 1;
+            }
+            if (timer >= 4 && timer % 2 == 0)
+            {
+                if (playeriam == playernumber)
+                {
+                    Var1 = rndm.Next(0, 4);
+                    Var2 = rndm.Next(0, 4);
+                    Var3 = rndm.Next(0, 4);
+
+                    await hubConnection.SendAsync("UpdateGameVars", lobbynumber, playernumber, Var1, Var2, Var3, 0, 4);
+                }
+            }
+            StateHasChanged();
+        }
+    }
+    public string GetCircleColor()
+    {
+        switch (Var1)
+        {
+            case 0: return "width:50px; height:50px;border-radius: 50%;  margin:auto; margin-bottom:20px; background:red;";
+            case 1: return "width:50px; height:50px;border-radius: 50%;  margin:auto; margin-bottom:20px; background:green;";
+            case 2: return "width:50px; height:50px;border-radius: 50%;  margin:auto; margin-bottom:20px; background:yellow;";
+            case 3: return "width:50px; height:50px;border-radius: 50%;  margin:auto; margin-bottom:20px; background:blue;";
+            default: return "width:50px; height:50px;border-radius: 50%;  margin:auto; margin-bottom:20px; background:grey;";
+        }
+    }
+    public async Task CheckAnswer()
+    {
+        if (Var1 == Var2)
+        {
+            gamestate = 2;
+            is_stopwatchrunning = false;
+            await Task.Delay(1000);
+            await MinigameGeneration.PlayerFinishedGame(playernumber, true, lobbynumber, hubConnection);
+        }
+        else
+        {
+            gamestate = 3;
+            is_stopwatchrunning = false;
+            await Task.Delay(1000);
+            await MinigameGeneration.PlayerFinishedGame(playernumber, false, lobbynumber, hubConnection);
+        }
+    }
+}

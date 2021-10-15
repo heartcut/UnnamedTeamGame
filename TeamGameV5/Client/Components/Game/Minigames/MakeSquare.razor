@@ -1,0 +1,60 @@
+﻿
+<h2 id="game-title">Use the buttons to turn the triangles into a square.</h2>
+<br />
+<div>
+    <div class="arrow-up" style="transform: rotate(@GetVars(1)); transition: transform .5s;"></div>
+    <div class="arrow-down" style="transform: rotate(@GetVars(2)); transition: transform .5s;"></div>
+    <div class="arrow-left" style="transform: rotate(@GetVars(3)); transition: transform .5s;"></div>
+    <div class="arrow-right" style="transform: rotate(@GetVars(4)); transition: transform .5s;"></div>
+</div>
+<div id="colorbuttons" class="botofgame">
+    <a class="colorbutton1" @onclick="()=>SquareRotate(1)">Rotate</a>
+    <a class="colorbutton2" @onclick="()=>SquareRotate(2)">Rotate</a>
+    <a class="colorbutton3" @onclick="()=>SquareRotate(3)">Rotate</a>
+    <a class="colorbutton4" @onclick="()=>SquareRotate(4)">Rotate</a>
+</div>
+
+@code {
+
+    [Parameter]
+    public HubConnection hubConnection { get; set; }
+    [Parameter]
+    public int Var1 { get; set; }
+    [Parameter]
+    public int Var2 { get; set; }
+    [Parameter]
+    public int Var3 { get; set; }
+    [Parameter]
+    public int Var4 { get; set; }
+    [Parameter]
+    public int playernumber { get; set; }
+    [Parameter]
+    public int lobbynumber { get; set; }
+
+    public string GetVars(int which)
+    {
+        switch (which)
+        {
+            case 1: return (Var1 * 90).ToString() + "deg";
+            case 2: return (Var2 * 90).ToString() + "deg";
+            case 3: return (Var3 * 90).ToString() + "deg";
+            case 4: return (Var4 * 90).ToString() + "deg";
+        }
+        return "1";
+    }
+    public async Task SquareRotate(int a)
+    {
+        switch (a)
+        {
+            case 1: Var1++; await hubConnection.SendAsync("UpdateGameVars", lobbynumber, playernumber, Var1 , Var2, Var3, Var4, 1); break;
+            case 2: Var2++; await hubConnection.SendAsync("UpdateGameVars", lobbynumber, playernumber, Var1, Var2, Var3, Var4, 1); break;
+            case 3: Var3++; await hubConnection.SendAsync("UpdateGameVars", lobbynumber, playernumber, Var1, Var2, Var3, Var4, 1); break;
+            case 4: Var4++; await hubConnection.SendAsync("UpdateGameVars", lobbynumber, playernumber, Var1, Var2, Var3, Var4, 1); break;
+        }
+        if (Var1 % 4 == 0 && Var2 % 4 == 0 && Var3 % 4 == 0 && Var4 % 4 == 0)
+        {
+            await MinigameGeneration.PlayerFinishedGame(playernumber, true, lobbynumber, hubConnection);
+        }
+    }
+
+}

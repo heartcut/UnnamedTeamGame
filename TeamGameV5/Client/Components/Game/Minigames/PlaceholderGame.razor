@@ -1,0 +1,22 @@
+﻿
+<div>Your random numbers are: @answer1 and @answer2</div>
+<div>Click the button.</div>
+<button @onclick="Go">Click me please.</button>
+
+@code {
+    [Parameter]
+    public HubConnection hubConnection { get; set; }
+    [Parameter]
+    public int answer1 { get; set; }
+    [Parameter]
+    public int answer2 { get; set; }
+    [Parameter]
+    public int playernumber { get; set; }
+    [Parameter]
+    public int lobbynumber { get; set; }
+
+    public async Task Go()
+    {
+        await MinigameGeneration.PlayerFinishedGame(playernumber, true, lobbynumber, hubConnection);
+    }
+}

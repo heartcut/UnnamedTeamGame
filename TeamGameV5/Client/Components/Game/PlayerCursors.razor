@@ -1,0 +1,67 @@
+﻿@if (MV.PlayerIAm != 1)
+{
+    <img src="Assets/bcurs.png" style="position: absolute;top:@GetPlayerMouse(MV,1,"y");left:@GetPlayerMouse(MV,1,"x");z-index:3;">
+}
+@if (MV.PlayerIAm != 2)
+{
+    <img src="Assets/rcurs.png" style="position: absolute;top:@GetPlayerMouse(MV,2,"y");left:@GetPlayerMouse(MV,2,"x");z-index:3;">
+}
+@if (MV.PlayerIAm != 3)
+{
+    <img src="Assets/gcurs.png" style="position: absolute;top:@GetPlayerMouse(MV,3,"y");left:@GetPlayerMouse(MV,3,"x");z-index:3;">
+}
+@if (MV.PlayerIAm != 4)
+{
+    <img src="Assets/ycurs.png" style="position: absolute;top:@GetPlayerMouse(MV,4,"y");left:@GetPlayerMouse(MV,4,"x");z-index:3;">
+}
+
+@code {
+
+    [Parameter]
+    public MyValues MV { get; set; }
+
+    public static string GetPlayerMouse(MyValues MV, int whichplayer, string xory)
+    {
+        switch (whichplayer)
+        {
+            case 1:
+                if (xory == "x")
+                {
+                    return ((MV.Width / 2) + MV.P1Xcords).ToString() + "px";
+                }
+                else
+                {
+                    return ((MV.Height / 2) + MV.P1Ycords).ToString() + "px";
+                }
+            case 2:
+                if (xory == "x")
+                {
+                    return ((MV.Width / 2) + MV.P2Xcords).ToString() + "px";
+                }
+                else
+                {
+                    return ((MV.Height / 2) + MV.P2Ycords).ToString() + "px";
+                }
+            case 3:
+                if (xory == "x")
+                {
+                    return ((MV.Width / 2) + MV.P3Xcords).ToString() + "px";
+                }
+                else
+                {
+                    return ((MV.Height / 2) + MV.P3Ycords).ToString() + "px";
+                }
+            case 4:
+                if (xory == "x")
+                {
+                    return ((MV.Width / 2) + MV.P4Xcords).ToString() + "px";
+                }
+                else
+                {
+                    return ((MV.Height / 2) + MV.P4Ycords).ToString() + "px";
+                }
+            default:
+                return "0px";
+        }
+    }
+}

@@ -1,0 +1,185 @@
+﻿@page "/game"
+@page "/game/{lobbynumber:int}"
+@inject NavigationManager navManager
+@implements IAsyncDisposable
+@using System.Threading;
+
+<h3>GamePage</h3>
+<cant-select-zone @onmousemove="MyMouseMoved" id="@MV.MyCursorStyle">
+    <PlayerCursors MV="MV" />
+    @if (gamestarted)
+    {
+        <game-window>
+            <player1window style="@MV.ponezone">
+                <ActiveGameComponent playeriam="MV.PlayerIAm" lobbynumber="lobbynumber" playernumber="1" ingame="MV.P1ingame" var1="@MV.P1GameVar1" var2="@MV.P1GameVar2" var3="MV.P1GameVar3" var4="MV.P1GameVar4" hubConnection="hubConnection" playergame="MV.P1Game" />
+                <PlayerHealthBar myhealth="MV.P1Health" playercolor="blue" />
+            </player1window>
+            <player2window style="@MV.ptwozone">
+                <ActiveGameComponent playeriam="MV.PlayerIAm" lobbynumber="lobbynumber" playernumber="2" ingame="MV.P2ingame" var1="@MV.P2GameVar1" var2="@MV.P2GameVar2" var3="MV.P2GameVar3" var4="MV.P2GameVar4" hubConnection="hubConnection" playergame="MV.P2Game" />
+                <PlayerHealthBar myhealth="MV.P2Health" playercolor="red" />
+            </player2window>
+            <player3window style="@MV.pthreezone">
+                <ActiveGameComponent playeriam="MV.PlayerIAm" lobbynumber="lobbynumber" playernumber="3" ingame="MV.P3ingame" var1="@MV.P3GameVar1" var2="@MV.P3GameVar2" var3="MV.P3GameVar3" var4="MV.P3GameVar4" hubConnection="hubConnection" playergame="MV.P3Game" />
+                <PlayerHealthBar myhealth="MV.P3Health" playercolor="green" />
+            </player3window>
+            <player4window style="@MV.pfourzone">
+                <ActiveGameComponent playeriam="MV.PlayerIAm" lobbynumber="lobbynumber" playernumber="4" ingame="MV.P4ingame" var1="@MV.P4GameVar1" var2="@MV.P4GameVar2" var3="MV.P4GameVar3" var4="MV.P4GameVar4" hubConnection="hubConnection" playergame="MV.P4Game" />
+                <PlayerHealthBar myhealth="MV.P4Health" playercolor="yellow" />
+            </player4window>
+        </game-window>
+        <div style="color: yellow; left: 50%; transform: translateX(-50%); bottom: 20px; position: fixed;font-size:larger;">@timer</div>
+    }
+    else
+    {
+        <game-window style="color:yellow;">wait for players chill </game-window>
+    }
+
+</cant-select-zone>
+<div style="color: white; left: 50%; transform: translateX(-50%); bottom: 2px; position: fixed;">
+    @*total players in lobby: doesnt work now  you player: @MV.PlayerIAm  you are in lobby: @lobbynumber
+    <div style="color:yellow">your weidth and height of screen @MV.Width-@MV.Height</div>
+    <div style="color:yellow">your curs pos normalized @MV.mycursx-@MV.mycursy</div>
+    <div style="color:yellow">ingame @gamestarted</div>>*@
+    <button @onclick="(() => StartGame(lobbynumber))">force start</button>
+</div>
+
+@code {
+
+    [Parameter]
+    public int lobbynumber { get; set; }
+
+    private HubConnection hubConnection;
+
+    bool gamestarted = false;
+    protected MyValues MV = new MyValues();
+
+    protected override void OnAfterRender(bool firstrender)
+    {
+        //this is making other players zones un clickable
+        switch (MV.PlayerIAm)
+        {
+            case 1: MV.ptwozone = "pointer-events:none;"; MV.pthreezone = "pointer-events:none;"; MV.pfourzone = "pointer-events:none;"; break;
+            case 2: MV.ponezone = "pointer-events:none;"; MV.pthreezone = "pointer-events:none;"; MV.pfourzone = "pointer-events:none;"; break;
+            case 3: MV.ptwozone = "pointer-events:none;"; MV.ponezone = "pointer-events:none;"; MV.pfourzone = "pointer-events:none;"; break;
+            case 4: MV.ptwozone = "pointer-events:none;"; MV.pthreezone = "pointer-events:none;"; MV.ponezone = "pointer-events:none;"; break;
+        }
+    }
+    protected override async Task OnInitializedAsync()
+    {
+        hubConnection = new HubConnectionBuilder().WithUrl(navManager.ToAbsoluteUri("/mainhub")).Build();
+
+        //hub listeners here
+        hubConnection.On<int, double, double>("AMouseMoved", TheyMoved);
+        hubConnection.On<int>("GetMyPlayerNumber", (int playernumber) => {
+            MV.PlayerIAm = playernumber;
+
+            MV.MyCursorStyle = "p" + MV.PlayerIAm;
+            if (playernumber == 4)
+            {
+                StartGame(lobbynumber);
+            }
+            StateHasChanged();
+        });
+        hubConnection.On("AmIFull", () => navManager.NavigateTo("/lobbyfull"));
+        hubConnection.On("SomeoneLeft", () => { navManager.NavigateTo("/someoneleft"); StateHasChanged(); });
+        hubConnection.On<int, int, int, int, int,int>("NeedToUpdateGameVars", ChangeGameVars);
+        hubConnection.On<int, int>("NeedToUpdateInGame", ChangeInGame);
+        hubConnection.On<int, int,bool>("PlayerHealthChanged", ChangeHealth);
+        //hubConnection.On<string>("StartTimeSet", (starttime) => { displaytime = starttime; StateHasChanged(); });
+        hubConnection.On("NeedToStartGame", () => { gamestarted = true; StopWatch(); StateHasChanged(); });
+
+        MV.MyLobby = lobbynumber;
+        await hubConnection.StartAsync();
+        await hubConnection.SendAsync("JoinGameGroup",MV.MyLobby);
+        //join game group calls a listener below to assaign mv.playernumber
+        StateHasChanged();
+    }
+    int timer = 0;
+    bool is_stopwatchrunning = true;
+    async Task StopWatch()
+    {
+        while (is_stopwatchrunning)
+        {
+            await Task.Delay(1000);
+            timer = timer + 1;
+            if (timer!= 0 && timer % 5 == 0)
+            {
+                await hubConnection.SendAsync("HealthChanged", MV.MyLobby,MV.PlayerIAm,-1,false);
+            }
+            StateHasChanged();
+        }
+        StateHasChanged();
+    }
+    void ChangeHealth(int player, int newhealth,bool healthgained)
+    {
+        switch (player)
+        {
+            case 1:if (MV.P1ingame != -1) { MV.P1Health = MV.P1Health + newhealth;if (MV.P1Health > 12) { MV.P1Health = 12; }if (MV.P1Health <= 0) { MV.P1ingame = -1; } } break;
+            case 2:if (MV.P2ingame != -1) { MV.P2Health = MV.P2Health + newhealth;if (MV.P2Health > 12) { MV.P2Health = 12; }if (MV.P2Health <= 0) { MV.P2ingame = -1; } } break;
+            case 3:if (MV.P3ingame != -1) { MV.P3Health = MV.P3Health + newhealth;if (MV.P3Health > 12) { MV.P3Health = 12; }if (MV.P3Health <= 0) { MV.P3ingame = -1; } } break;
+            case 4:if (MV.P4ingame != -1) { MV.P4Health = MV.P4Health + newhealth;if (MV.P4Health > 12) { MV.P4Health = 12; }if (MV.P4Health <= 0) { MV.P4ingame = -1; } } break;
+        }
+        StateHasChanged();
+    }
+    void ChangeInGame(int player, int ingame)
+    {
+        switch (player)
+        {
+            case 1: MV.P1ingame = ingame; break;
+            case 2: MV.P2ingame = ingame; break;
+            case 3: MV.P3ingame = ingame; break;
+            case 4: MV.P4ingame = ingame; break;
+        }
+        StateHasChanged();
+    }
+    void ChangeGameVars(int player, int var1 ,int var2, int var3, int var4,int whatgame)
+    {
+        switch (player)
+        {
+            case 1: MV.P1GameVar1 = var1; MV.P1GameVar2 = var2; MV.P1GameVar3 = var3; MV.P1GameVar4 = var4; MV.P1Game = whatgame; break;
+            case 2: MV.P2GameVar1 = var1; MV.P2GameVar2 = var2; MV.P2GameVar3 = var3; MV.P2GameVar4 = var4; MV.P2Game = whatgame; break;
+            case 3: MV.P3GameVar1 = var1; MV.P3GameVar2 = var2; MV.P3GameVar3 = var3; MV.P3GameVar4 = var4; MV.P3Game = whatgame; break;
+            case 4: MV.P4GameVar1 = var1; MV.P4GameVar2 = var2; MV.P4GameVar3 = var3; MV.P4GameVar4 = var4; MV.P4Game = whatgame; break;
+        }
+        StateHasChanged();
+    }
+    //for the js
+    [Inject]
+    protected BrowserService Service { get; set; }
+    async Task MyMouseMoved(MouseEventArgs e)
+    {
+
+        //js the three below
+        var dimension = await Service.GetDimensions();
+        MV.Height = dimension.Height;
+        MV.Width = dimension.Width;
+        MV.MouseMoved(e);
+
+        await hubConnection.SendAsync("Moved", MV.PlayerIAm, MV.MyLobby, MV.mycursx, MV.mycursy);
+    }
+    void TheyMoved(int player, double x, double y)
+    {
+        switch (player)
+        {
+            case 1: MV.P1Xcords = x; MV.P1Ycords = y; break;
+            case 2: MV.P2Xcords = x; MV.P2Ycords = y; break;
+            case 3: MV.P3Xcords = x; MV.P3Ycords = y; break;
+            case 4: MV.P4Xcords = x; MV.P4Ycords = y; break;
+        }
+        StateHasChanged();
+    }
+    public async Task StartGame(int lobby)
+    {
+        await MinigameGeneration.GenerateNewGame(1, lobby, hubConnection);
+        await MinigameGeneration.GenerateNewGame(2, lobby, hubConnection);
+        await MinigameGeneration.GenerateNewGame(3, lobby, hubConnection);
+        await MinigameGeneration.GenerateNewGame(4, lobby, hubConnection);
+
+        await hubConnection.SendAsync("StartGame", MV.MyLobby);
+    }
+    public async ValueTask DisposeAsync()
+    {
+        await hubConnection.SendAsync("CloseGame", MV.MyLobby);
+        await hubConnection.StopAsync();
+    }
+}

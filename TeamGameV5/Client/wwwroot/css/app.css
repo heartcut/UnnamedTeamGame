@@ -1,0 +1,373 @@
+﻿#blazor-error-ui {
+    background: lightyellow;
+    bottom: 0;
+    box-shadow: 0 -1px 2px rgba(0, 0, 0, 0.2);
+    display: none;
+    left: 0;
+    padding: 0.6rem 1.25rem 0.7rem 1.25rem;
+    position: fixed;
+    width: 100%;
+    z-index: 1000;
+}
+
+    #blazor-error-ui .dismiss {
+        cursor: pointer;
+        position: absolute;
+        right: 0.75rem;
+        top: 0.5rem;
+    }
+
+html, body {
+    background-color: black;
+    color: grey;
+    font-family: 'Share Tech', sans-serif;
+    cursor: url(/Assets/rainbowcurse.png) -2 -2,auto;
+
+}
+
+main {
+    cursor: url(/Assets/rainbowcurse.png) -2 -2,auto;
+}
+
+
+/*--------------Lobby-------------------------*/
+lobby-item {
+    background-color: dimgrey;
+    border: thin black;
+    /*cursor: pointer;*/
+    cursor: url(/Assets/rainbowcurse.png) -2 -2,auto;
+    transition: background-color .5s;
+}
+
+    lobby-item:hover {
+        background-color: darkgreen;
+    }
+
+lobby-window {
+    text-align: center;
+    /*border: dashed 5px red;*/
+    background: black;
+    border-radius: 1em;
+    padding: 1em;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    margin-right: -50%;
+    transform: translate(-50%, -50%);
+    width: 1071px;
+    height: 603px;
+    display: grid;
+    grid-template-columns: auto auto auto;
+    grid-template-rows: 201px 201px 201px;
+    cursor: default;
+}
+
+/*--------------game page-------------------------*/
+cant-select-zone {
+    /*makes the text not highlightable*/
+    -webkit-user-select: none; /* Safari */
+    -moz-user-select: none; /* Firefox */
+    -ms-user-select: none; /* IE10+/Edge */
+    user-select: none; /* Standard */
+    -webkit-touch-callout: none; /* iOS Safari */
+    -webkit-user-select: none; /* Safari */
+    -moz-user-select: none; /* Old versions of Firefox */
+    -ms-user-select: none; /* Internet Explorer/Edge */
+    user-select: none;
+}
+
+game-window {
+    text-align: center;
+    /* border: dashed 5px red;*/
+    background: black;
+    color: white;
+    border-radius: 1em;
+    padding: 1em;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    margin-right: -50%;
+    transform: translate(-50%, -50%);
+    width: 1072px;
+    height: 603px;
+}
+
+player1window {
+    position: absolute;
+    width: 49.5%;
+    height: 49%;
+    left: 2px;
+    top: 2px;
+    border: 2px solid grey;
+    /*    cursor: url(/media/bcurs.png) -2 -2,auto;*/
+}
+
+player2window {
+    position: absolute;
+    width: 49.5%;
+    height: 49%;
+    right: 2px;
+    top: 2px;
+    border: 2px solid grey;
+    /*    cursor: url(/media/rcurs.png) -2 -2,auto;*/
+    color: white;
+}
+
+player3window {
+    position: absolute;
+    width: 49.5%;
+    height: 49%;
+    left: 2px;
+    bottom: 2px;
+    border: 2px solid grey;
+    /*    cursor: url(/media/gcurs.png) -2 -2,auto;*/
+    color: white;
+}
+
+player4window {
+    position: absolute;
+    width: 49.5%;
+    height: 49%;
+    right: 2px;
+    bottom: 2px;
+    border: 2px solid grey;
+    /*    cursor: url(/media/ycurs.png) -2 -2,auto;*/
+    color: white;
+}
+
+.playerhealth {
+    position: absolute;
+    bottom: 3px;
+    left: 33%;
+    color: white;
+}
+
+healthbubblealive {
+    height: 12px;
+    width: 12px;
+    padding: 0px;
+    border-radius: 100px;
+    transform: rotate(0deg);
+    -webkit-transform: rotate(0deg);
+    float: left;
+    margin-left: 1px;
+    border: solid 1px white;
+}
+
+healthbubbledead {
+    margin-left: 1px;
+    height: 12px;
+    width: 12px;
+    padding: 0px;
+    background-color: white;
+    border-radius: 100px;
+    transform: rotate(0deg);
+    -webkit-transform: rotate(0deg);
+    border: solid 1px white;
+    float: left;
+}
+
+#p1 {
+    cursor: url(/Assets/bcurs.png) -2 -2,auto;
+}
+
+#p2 {
+    cursor: url(/Assets/rcurs.png) -2 -2,auto;
+}
+
+#p3 {
+    cursor: url(/Assets/gcurs.png) -2 -2,auto;
+}
+
+#p4 {
+    cursor: url(/Assets/ycurs.png) -2 -2,auto;
+}
+/*--------------animations-------------------------*/
+healthadd {
+    text-align: center;
+    position: absolute;
+    /*float: left;*/
+    color: grey;
+    bottom: 24px;
+    left: 36%;
+}
+
+healthslash {
+    position: absolute;
+    animation-name: slash;
+    animation-duration: 1s;
+    opacity: 0;
+    float: left;
+    height: 6px;
+    width: 12px;
+    background-color: grey;
+    left: 30%;
+    bottom: 9px;
+}
+
+@keyframes slash {
+    10% {
+        opacity: 100;
+    }
+
+    20% {
+        left: 27%;
+    }
+
+    50% {
+        left: 69%;
+    }
+
+    80% {
+        left: 69%;
+        opacity: 100;
+    }
+
+    100% {
+        left: 69%;
+        opacity: 0;
+    }
+}
+/*--------------minigames-------------------------*/
+.sixnine {
+    -webkit-touch-callout: none; /* iOS Safari */
+    -webkit-user-select: none; /* Safari */
+    -moz-user-select: none; /* Old versions of Firefox */
+    -ms-user-select: none; /* Internet Explorer/Edge */
+    user-select: none;
+    letter-spacing: 4px;
+    font-size: x-large;
+    color: white;
+}
+/*MAKE A SQUARE GAME BELOW----------------------------------------*/
+
+.arrow-up {
+    width: 0;
+    height: 0;
+    border-left: 50px solid transparent;
+    border-right: 50px solid transparent;
+    border-bottom: 50px solid red;
+    position: absolute;
+    left: 252px;
+    top: 152px;
+    transform-origin: bottom center;
+}
+
+.arrow-down {
+    width: 0;
+    height: 0;
+    border-left: 50px solid transparent;
+    border-right: 50px solid transparent;
+    border-top: 50px solid blue;
+    position: absolute;
+    left: 252px;
+    top: 98px;
+    transform-origin: top center;
+}
+
+.arrow-right {
+    width: 0;
+    height: 0;
+    border-top: 50px solid transparent;
+    border-bottom: 50px solid transparent;
+    border-left: 50px solid green;
+    position: absolute;
+    left: 250px;
+    top: 100px;
+    transform-origin: center left;
+}
+
+.arrow-left {
+    width: 0;
+    height: 0;
+    border-top: 50px solid transparent;
+    border-bottom: 50px solid transparent;
+    border-right: 50px solid yellow;
+    position: absolute;
+    left: 305px;
+    top: 100px;
+    transform-origin: center right;
+}
+
+#colorbuttons {
+    border: none;
+    padding: 20px;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 16px;
+    margin: 4px 2px;
+    font-weight: bolder;
+}
+
+.colorbutton1 {
+    background-color: green;
+    color: blue;
+    height: 50px;
+    width: 120px;
+}
+
+.colorbutton2 {
+    background-color: yellow;
+    color: red;
+    height: 50px;
+    width: 120px;
+}
+
+.colorbutton3 {
+    background-color: blue;
+    color: yellow;
+    height: 50px;
+    width: 120px;
+}
+
+.colorbutton4 {
+    background-color: red;
+    color: green;
+    height: 50px;
+    width: 120px;
+}
+.botofgame {
+    position: absolute;
+    bottom: 15px;
+    left: 30%;
+}
+
+#game-title {
+    text-align: center;
+    color: white;
+}
+/*memorize color number-----------------------------------------*/
+
+.memorizeelement {
+    width: 75px;
+    height: 75px;
+    color: white;
+    font-size: 50px;
+    font-weight: 900;
+    text-shadow: -1px 0 black, 0 1px black, 1px 0 black, 0 -1px black;
+}
+/*------------------MEMORIZE COLRO AND SHAPE-------------*/
+.flex {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 85px;
+}
+
+.flex-row {
+    flex-direction: row;
+    padding: 10px;
+}
+
+.flex-column {
+    flex-direction: column;
+}
+
+.flex-wrap {
+    flex-wrap: wrap;
+}
+
+.flex-basis-50 {
+    flex-basis: 50%;
+}

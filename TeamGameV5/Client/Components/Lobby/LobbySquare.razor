@@ -1,0 +1,22 @@
+﻿@inject NavigationManager navManager
+@using System.Threading;
+
+<h3 style="color:black">Lobby @lobby</h3>
+@if (currentlobbyarray[lobby - 1] < 4)
+{
+    <div style="color:lawngreen;font-size:x-large">@currentlobbyarray[lobby - 1] / 4</div>
+}
+else
+{
+    <div style="color:red;font-size:x-large">@currentlobbyarray[lobby - 1] / 4</div>
+    <div style="color:red;font-size:x-large">Full</div>
+}
+
+@code {
+
+    [Parameter]
+    public int lobby { get; set; }
+    [Parameter]
+    public int[] currentlobbyarray { get; set; }
+
+}

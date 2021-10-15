@@ -1,0 +1,12 @@
+﻿@page "/someoneleft"
+@inject NavigationManager navManager
+
+<div style="text-align:center;">Sorry, someone left your game.</div>
+<button @onclick="GoToLobbyPage" style="text-align:center;">Click to go to lobby page.</button>
+
+@code {
+    void GoToLobbyPage()
+    {
+        navManager.NavigateTo("/lobbypage");
+    }
+}

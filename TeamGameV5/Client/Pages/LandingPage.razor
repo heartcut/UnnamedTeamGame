@@ -1,0 +1,18 @@
+﻿@page "/"
+@inject NavigationManager navManager
+@using System.Threading
+
+<div style="text-align:center;">
+
+    <div style="margin-top: 200px">this is the main page</div>
+
+    <button @onclick="GoToLobbyPage" style="margin-top: 300px; background-color: #4CAF50; width: 100px; height: 80px; cursor: url(/Assets/rainbowcurse.png) -2 -2,auto;">play!</button>
+
+</div>
+
+@code{
+    void GoToLobbyPage()
+    {
+        navManager.NavigateTo("/lobbypage");
+    }
+}

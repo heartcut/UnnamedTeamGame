@@ -1,0 +1,44 @@
+﻿@page "/lobbypage"
+@inject NavigationManager navManager
+@using System.Threading;
+
+<h1 style="text-align:center">Welcome to unnamed game!</h1>
+<h2 style="text-align:center">Please choose your lobby.</h2>
+
+<lobby-window >
+    <lobby-item @onclick="args => GoToLobby(1)"><LobbySquare lobby="1" currentlobbyarray="currentlobbyarray"/></lobby-item>
+    <lobby-item @onclick="args => GoToLobby(2)"><LobbySquare lobby="2" currentlobbyarray="currentlobbyarray"/></lobby-item>
+    <lobby-item @onclick="args => GoToLobby(3)"><LobbySquare lobby="3" currentlobbyarray="currentlobbyarray"/></lobby-item>
+    <lobby-item @onclick="args => GoToLobby(4)"><LobbySquare lobby="4" currentlobbyarray="currentlobbyarray"/></lobby-item>
+    <lobby-item @onclick="args => GoToLobby(5)"><LobbySquare lobby="5" currentlobbyarray="currentlobbyarray"/></lobby-item>
+    <lobby-item @onclick="args => GoToLobby(6)"><LobbySquare lobby="6" currentlobbyarray="currentlobbyarray"/></lobby-item>
+    <lobby-item @onclick="args => GoToLobby(7)"><LobbySquare lobby="7" currentlobbyarray="currentlobbyarray"/></lobby-item>
+    <lobby-item @onclick="args => GoToLobby(8)"><LobbySquare lobby="8" currentlobbyarray="currentlobbyarray"/></lobby-item>
+    <lobby-item @onclick="args => GoToLobby(9)"><LobbySquare lobby="9" currentlobbyarray="currentlobbyarray"/></lobby-item>
+</lobby-window>
+<div style="color: white; left: 50%; transform: translateX(-50%); bottom: 2px; position: fixed;">
+    Click here for singleplayer practice
+</div>
+
+
+@code {
+    public int[] currentlobbyarray = new int[9];
+    private HubConnection hubConnection;
+    protected override async Task OnInitializedAsync()
+    {
+        hubConnection = new HubConnectionBuilder().WithUrl(navManager.ToAbsoluteUri("/mainhub")).Build();
+        await hubConnection.StartAsync();
+        await hubConnection.SendAsync("JoinLobbyGroup");
+        hubConnection.On<int[]>("UpdateLobbyPlayers", UpdatePlayers);
+    }
+    void UpdatePlayers(int[] lobbyarray)
+    {
+        currentlobbyarray = lobbyarray;
+        StateHasChanged();
+    }
+    async Task GoToLobby(int lobbynumber)
+    {
+        navManager.NavigateTo("/game/" + lobbynumber);
+    }
+}
+

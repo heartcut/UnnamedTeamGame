@@ -1,0 +1,186 @@
+﻿@if (gamestate == 0) //first screen with numbers and boxes
+{
+    <h2 id="game-title">Remember the colors and the shapes.</h2>
+    <div class="flex flex-row flex-wrap h-100">
+        <div class="flex flex-column flex-basis-50">
+            <div style="@GetStyles(0, true)"></div>
+        </div>
+        <div class="flex flex-column flex-basis-50">
+            <div style="@GetStyles(1, true)"></div>
+        </div>
+        <div class="flex flex-column flex-basis-50">
+            <div style="@GetStyles(2, true)"></div>
+        </div>
+        <div class="flex flex-column flex-basis-50">
+            <div style="@GetStyles(3, true)"></div>
+        </div>
+        @*<div class="flex flex-column flex-basis-50">
+                <div style=" width: 0px; height: 0px; border-right: 30px solid transparent; border-top: 30px solid red; border-left: 30px solid red; border-bottom: 30px solid red; border-top-left-radius: 30px; border-top-right-radius: 30px; border-bottom-left-radius: 30px; border-bottom-right-radius: 30px;">pacman</div>
+            </div>*@
+    </div>
+}
+else if (gamestate == 1)
+{
+    <div>Remember</div>
+}
+else if (gamestate == 2) //screen with question and answer choices
+{
+    if (Var3 == 0)//question what color was the shape shown?
+    {
+        <p>What color was this shape?</p>
+        <div style="@GetStyles(Var4, false) margin:auto;margin-bottom:20px;"></div>
+        
+        <button @onclick="(() => CheckAnswer(1))">@colors[1]</button>
+        <button @onclick="(() => CheckAnswer(2))">@colors[2]</button>
+        <button @onclick="(() => CheckAnswer(3))">@colors[3]</button>
+        <button @onclick="(() => CheckAnswer(0))">@colors[0]</button>
+    }
+    else //question what shape was this color?
+    {
+        <p>What shape was the color @colors[Var4] </p>
+
+        <div class="flex flex-row flex-wrap h-100">
+            <div class="flex flex-column flex-basis-50">
+                <div style="@GetStyles(1, false)" @onclick="(() => CheckAnswer(1))"></div>
+            </div>
+            <div class="flex flex-column flex-basis-50">
+                <div style="@GetStyles(2, false)" @onclick="(() => CheckAnswer(2))"></div>
+            </div>
+            <div class="flex flex-column flex-basis-50">
+                <div style="@GetStyles(3, false)" @onclick="(() => CheckAnswer(3))"></div>
+            </div>
+            <div class="flex flex-column flex-basis-50">
+                <div style="@GetStyles(0, false)" @onclick="(() => CheckAnswer(0))"></div>
+            </div>
+        </div>
+    }
+}
+else if (gamestate == 3)
+{
+    <div>Correct!</div>
+}
+else
+{
+    <div>Wrong!</div>//wrong
+}
+
+@code {
+    //[colors,shapes,questoin1or2,answer]
+    [Parameter]
+    public int Var1 { get; set; }
+    [Parameter]
+    public int Var2 { get; set; }
+    [Parameter]
+    public int Var3 { get; set; }
+    [Parameter]
+    public int Var4 { get; set; }
+    [Parameter]
+    public int playernumber { get; set; }
+    [Parameter]
+    public int lobbynumber { get; set; }
+    [Parameter]
+    public HubConnection hubConnection { get; set; }
+
+    public string[] colors;
+    public int[] shapes;
+    //add color;
+    public string[] shapestyles =
+    {
+        "width: 50px; height: 50px; background: ",
+        "width: 50px; height: 50px; border-radius: 50%; background: ",
+        "width: 0; height: 0;border-right: 50px solid transparent;border-top: 50px solid ",
+        "width: 40px; height: 40px; border-radius: 50%; box-shadow: 10px 10px 0 0 ",
+        "width: 75px; height: 50px; transform: skew(20deg); background: ",
+        "border-left: 17px solid transparent; border-right: 17px solid transparent; height: 0; width: 50px; border-bottom: 50px solid "
+    };
+
+    public int gamestate = 0;
+
+    int memorizetimer = 0;
+    bool is_stopwatchrunning = true;
+    async Task MemorizeStopWatch()
+    {
+        while (is_stopwatchrunning)
+        {
+            if (memorizetimer > 4 && memorizetimer <= 6)
+            {
+                gamestate = 1;
+            }
+            if (memorizetimer > 6)
+            {
+                gamestate = 2;
+                is_stopwatchrunning = false;
+            }
+            await Task.Delay(1000);
+            memorizetimer = memorizetimer + 1;
+            StateHasChanged();
+        }
+    }
+    protected override async Task OnInitializedAsync()
+    {
+        switch (Var1)
+        {
+            case 1: colors = new string[] { "red", "blue", "green", "yellow" }; break;
+            case 2: colors = new string[] { "yellow", "blue", "green", "red" }; break;
+            case 3: colors = new string[] { "red", "yellow", "green", "blue" }; break;
+            case 4: colors = new string[] { "red", "yellow", "blue", "green" }; break;
+            case 5: colors = new string[] { "green", "blue", "red", "blue" }; break;
+            case 6: colors = new string[] { "red", "green", "yellow", "blue" }; break;
+            case 7: colors = new string[] { "blue", "red", "yellow", "green" }; break;
+            case 8: colors = new string[] { "blue", "green", "yellow", "red" }; break;
+            case 9: colors = new string[] { "blue", "yellow", "green", "red" }; break;
+        }
+        switch (Var2)
+        {
+            case 1: shapes = new int[] { 1, 2, 3, 4 }; break;
+            case 2: shapes = new int[] { 2, 3, 4, 5 }; break;
+            case 3: shapes = new int[] { 4, 5, 1, 0 }; break;
+            case 4: shapes = new int[] { 0, 5, 4, 1 }; break;
+            case 5: shapes = new int[] { 5, 1, 2, 3 }; break;
+            case 6: shapes = new int[] { 3, 0, 3, 2 }; break;
+            case 7: shapes = new int[] { 0, 1, 5, 2 }; break;
+            case 8: shapes = new int[] { 3, 5, 4, 0 }; break;
+            case 9: shapes = new int[] { 3, 2, 1, 4 }; break;
+        }
+        MemorizeStopWatch();
+    }
+    public string GetStyles(int which, bool havecolor)
+    {
+        if (havecolor)
+        {
+            switch (which)
+            {
+                case 0: return (shapestyles[shapes[0]].ToString()) + colors[0] + ";";
+                case 1: return (shapestyles[shapes[1]].ToString()) + colors[1] + ";";
+                case 2: return (shapestyles[shapes[2]].ToString()) + colors[2] + ";";
+                case 3: return (shapestyles[shapes[3]].ToString()) + colors[3] + ";";
+            }
+        }
+        else
+        {
+            switch (which)
+            {
+                case 0: return (shapestyles[shapes[0]].ToString()) + " grey;";
+                case 1: return (shapestyles[shapes[1]].ToString()) + " grey;";
+                case 2: return (shapestyles[shapes[2]].ToString()) + " grey;";
+                case 3: return (shapestyles[shapes[3]].ToString()) + " grey;";
+            }
+        }
+        return "1";
+    }
+    public async Task CheckAnswer(int answer)
+    {
+        if (answer == Var4)
+        {
+            gamestate = 3;
+            await Task.Delay(1000);
+            await MinigameGeneration.PlayerFinishedGame(playernumber, true, lobbynumber, hubConnection);
+        }
+        else
+        {
+            gamestate = 4;
+            await Task.Delay(1000);
+            await MinigameGeneration.PlayerFinishedGame(playernumber, false, lobbynumber, hubConnection);
+        }
+    }
+}

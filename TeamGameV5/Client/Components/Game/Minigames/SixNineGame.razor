@@ -1,0 +1,99 @@
+﻿
+<h2 id="game-title">Find all the sixes</h2>
+<br />
+
+<div class="sixnine">
+    <span @onclick="(() => IsSix(0))">@if (answer1 == 0 || answer2 == 0) {@six} else {@nine}</span>
+    <span @onclick="(() => IsSix(1))">@if (answer1 == 1 || answer2 == 1) {@six} else {@nine}</span>
+    <span @onclick="(() => IsSix(2))">@if (answer1 == 2 || answer2 == 2) {@six} else {@nine}</span>
+    <span @onclick="(() => IsSix(3))">@if (answer1 == 3 || answer2 == 3) {@six} else {@nine}</span>
+    <span @onclick="(() => IsSix(4))">@if (answer1 == 4 || answer2 == 4) {@six} else {@nine}</span>
+    <span @onclick="(() => IsSix(5))">@if (answer1 == 5 || answer2 == 5) {@six} else {@nine}</span>
+    <span @onclick="(() => IsSix(6))">@if (answer1 == 6 || answer2 == 6) {@six} else {@nine}</span>
+    <span @onclick="(() => IsSix(7))">@if (answer1 == 7 || answer2 == 7) {@six} else {@nine}</span>
+</div>
+<div class="sixnine">
+    <span @onclick="(() => IsSix(8))">@if (answer1 == 8 || answer2 == 8) {@six} else {@nine}</span>
+    <span @onclick="(() => IsSix(9))">@if (answer1 == 9 || answer2 == 9) {@six} else {@nine}</span>
+    <span @onclick="(() => IsSix(10))">@if (answer1 == 10 || answer2 == 10) {@six} else {@nine}</span>
+    <span @onclick="(() => IsSix(11))">@if (answer1 == 11 || answer2 == 11) {@six} else {@nine}</span>
+    <span @onclick="(() => IsSix(12))">@if (answer1 == 12 || answer2 == 12) {@six} else {@nine}</span>
+    <span @onclick="(() => IsSix(13))">@if (answer1 == 13 || answer2 == 13) {@six} else {@nine}</span>
+    <span @onclick="(() => IsSix(14))">@if (answer1 == 14 || answer2 == 14) {@six} else {@nine}</span>
+    <span @onclick="(() => IsSix(15))">@if (answer1 == 15 || answer2 == 15) {@six} else {@nine}</span>
+</div>
+<div class="sixnine">
+    <span @onclick="(() => IsSix(16))">@if (answer1 == 16 || answer2 == 16) {@six} else {@nine}</span>
+    <span @onclick="(() => IsSix(17))">@if (answer1 == 17 || answer2 == 17) {@six} else {@nine}</span>
+    <span @onclick="(() => IsSix(18))">@if (answer1 == 18 || answer2 == 18) {@six} else {@nine}</span>
+    <span @onclick="(() => IsSix(19))">@if (answer1 == 19 || answer2 == 19) {@six} else {@nine}</span>
+    <span @onclick="(() => IsSix(20))">@if (answer1 == 20 || answer2 == 20) {@six} else {@nine}</span>
+    <span @onclick="(() => IsSix(21))">@if (answer1 == 21 || answer2 == 21) {@six} else {@nine}</span>
+    <span @onclick="(() => IsSix(22))">@if (answer1 == 22 || answer2 == 22) {@six} else {@nine}</span>
+    <span @onclick="(() => IsSix(23))">@if (answer1 == 23 || answer2 == 23) {@six} else {@nine}</span>
+
+</div>
+<div class="sixnine">
+    <span @onclick="(() => IsSix(24))">@if (answer1 == 24 || answer2 == 24) {@six} else {@nine}</span>
+    <span @onclick="(() => IsSix(25))">@if (answer1 == 25 || answer2 == 25) {@six} else {@nine}</span>
+    <span @onclick="(() => IsSix(26))">@if (answer1 == 26 || answer2 == 26) {@six} else {@nine}</span>
+    <span @onclick="(() => IsSix(27))">@if (answer1 == 27 || answer2 == 27) {@six} else {@nine}</span>
+    <span @onclick="(() => IsSix(28))">@if (answer1 == 28 || answer2 == 28) {@six} else {@nine}</span>
+    <span @onclick="(() => IsSix(29))">@if (answer1 == 29 || answer2 == 29) {@six} else {@nine}</span>
+    <span @onclick="(() => IsSix(30))">@if (answer1 == 30 || answer2 == 30) {@six} else {@nine}</span>
+    <span @onclick="(() => IsSix(31))">@if (answer1 == 31 || answer2 == 31) {@six} else {@nine}</span>
+</div>
+<div class="sixnine">@status</div>
+    @code {
+        [Parameter]
+        public HubConnection hubConnection { get; set; }
+        [Parameter]
+        public int answer1 { get; set; }
+        [Parameter]
+        public int answer2 { get; set; }
+        [Parameter]
+        public int playernumber { get; set; }
+        [Parameter]
+        public int lobbynumber { get; set; }
+        string six = "6";
+        string nine = "9";
+
+        public string status;
+        public int rightanswer = 0;
+        public int wronganswer = 0;
+        public async Task IsSix(int x)
+        {
+            if (x == answer1||x==answer2)
+            {
+                //currently updating from db make it where if a matches a number in the array it changes to 99
+                if (x == answer1)
+                {
+                    int[] newvars = { 99, answer2,0,0 };
+                    await hubConnection.SendAsync("UpdateGameVars", lobbynumber,playernumber,99,answer2,0,0,0);
+                }
+                if (x == answer2)
+                {
+                    int[] newvars = { answer1, 99,0,0 };
+                    await hubConnection.SendAsync("UpdateGameVars", lobbynumber, playernumber, answer1, 99, 0, 0,0);
+                }
+                StateHasChanged();
+                if (rightanswer == 1)
+                {
+                    status = "youwin!";
+                    await MinigameGeneration.PlayerFinishedGame(playernumber, true, lobbynumber, hubConnection);
+                    StateHasChanged();
+                }
+                rightanswer++;
+            }
+            else if (wronganswer >= 1)
+            {
+                status = "youlose";
+                await MinigameGeneration.PlayerFinishedGame(playernumber, false, lobbynumber, hubConnection);
+                StateHasChanged();
+            }
+            else
+            {
+                wronganswer++;
+            }
+        }
+    }

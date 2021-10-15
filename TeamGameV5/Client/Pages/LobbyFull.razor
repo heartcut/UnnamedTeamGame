@@ -1,0 +1,12 @@
+﻿@page "/lobbyfull"
+@inject NavigationManager navManager
+
+<div style="text-align:center;">Sorry this lobby full.</div>
+<button @onclick="GoToLobbyPage" style="text-align:center">Click to see lobbies</button>
+
+@code {
+    void GoToLobbyPage()
+    {
+        navManager.NavigateTo("/lobbypage");
+    }
+}
